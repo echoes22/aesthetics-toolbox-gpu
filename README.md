@@ -19,7 +19,7 @@ implementation (see [Validation](#validation)), about 30 times faster per image,
 
 ## Installation
 
-Requires Python ≥ 3.9. Install [PyTorch](https://pytorch.org/get-started/locally/) for your platform first
+Requires Python ≥ 3.10. Install [PyTorch](https://pytorch.org/get-started/locally/) for your platform first
 (choose a CUDA build to use an NVIDIA GPU), then:
 
 ```bash

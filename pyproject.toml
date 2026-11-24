@@ -9,7 +9,7 @@ description = "GPU-accelerated computation of the quantitative image properties 
 readme = "README.md"
 license = {text = "MIT"}
 authors = [{name = "Émile Bergeron"}]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.21",
     "scipy>=1.7",
