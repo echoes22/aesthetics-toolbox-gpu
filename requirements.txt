@@ -1,0 +1,7 @@
+# Install PyTorch first, following https://pytorch.org/get-started/locally/ for your CUDA version.
+numpy>=1.21
+scipy>=1.7
+scikit-image>=0.19
+Pillow>=9.1
+torch>=1.13
+tqdm
