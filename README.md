@@ -11,11 +11,19 @@ edge-orientation entropy, CNN-feature QIPs and more.
 qip-machine paintings/ -o paintings_qips.csv
 ```
 
-The QIP algorithms are those of the Aesthetics Toolbox. The expensive steps (Gabor filter bank and
-second-order edge-orientation entropy, CNN features, Fourier spectra) run on the GPU in double precision,
-the rest is vectorised, and images are processed in parallel. The results match those of the original
-implementation (see [Validation](#validation)), about 30 times faster per image, and a dataset like WikiArt
-(81k images) takes hours instead of days.
+The QIP algorithms are those of the Aesthetics Toolbox, and the results match those of the original
+implementation to within floating-point rounding (see [Validation](#validation)). The expensive steps (Gabor
+filter bank and second-order edge-orientation entropy, CNN features, Fourier spectra) run on the GPU in double
+precision, the rest is vectorised, and images are processed in parallel:
+
+| | Original toolbox | qip-machine | Speedup |
+|---|---|---|---|
+| One typical image, one process | 23.7 s | 0.78 s | **30×** |
+| All of WikiArt (81,449 images), 8 CPU cores + one GPU | ~2.8 days | ~9.5 hours | **7×** |
+| The same, images downscaled to a 1000-pixel short side | | ~3.2 hours | **21×** |
+
+Typical image: a median-size WikiArt painting (0.6 megapixels); GPU: a slice of an NVIDIA H100. See
+[Speed](#speed) for details.
 
 ## Installation
 
@@ -151,14 +159,17 @@ On network file systems, copying the images to a local disk first can speed thin
 Measured on 200 WikiArt paintings (median 0.6 megapixels, largest 44 megapixels) with 8 CPU cores and a
 slice of an NVIDIA H100 GPU (MIG 2g.20gb, about 2/7 of the GPU), at full resolution unless noted:
 
-| | Images per second | Time for WikiArt (81,449 images) |
-|---|---|---|
-| Original toolbox code, 8 processes in parallel (22.8 s per image each) | 0.35 | ~2.7 days |
-| qip-machine, CPU only (`--device cpu`, 8 workers) | 1.2 | ~19 hours |
-| qip-machine, GPU (default, 8 workers) | 2.5 | ~9 hours |
-| qip-machine, GPU, `--short-side 1000` | 7.1 | ~3 hours |
+| | Images per second | Speedup | Time for WikiArt (81,449 images) |
+|---|---|---|---|
+| Original toolbox code, 8 processes in parallel (23.7 s per image each)¹ | 0.34 | 1× | ~2.8 days |
+| qip-machine, CPU only (`--device cpu`, 8 workers) | 1.17 | 3.5× | ~19 hours |
+| qip-machine, GPU (default, 8 workers) | 2.39 | 7.1× | ~9.5 hours |
+| qip-machine, GPU, `--short-side 1000` | 7.05 | 21× | ~3.2 hours |
 
-A single worker takes 0.76 s for a typical image, against 22.8 s for the original code. Each worker uses one
+¹ Estimated from the median time per image of the original code on the 7 median-size images of the set,
+run 7 at a time. The set also contains much larger images, so this estimate favours the original code.
+
+A single worker takes 0.78 s for a typical image, against 23.7 s for the original code (30×). Each worker uses one
 CPU core and about 0.7 GB of GPU memory. Most of the remaining time is CPU work (colour conversions, PHOG,
 fractal dimensions), so throughput grows with the number of cores; one GPU is enough.
 
